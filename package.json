@@ -1,0 +1,11 @@
+{
+  "name": "acos-code-annotation",
+  "version": "0.0.1",
+  "description": "Code annotations content type.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Peter Sormunen",
+  "license": "MIT"
+}
