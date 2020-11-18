@@ -39,6 +39,10 @@ document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 
+// variables for logging
+const userId =
+  Math.random().toString(36).substring(2, 15) +
+  Math.random().toString(36).substring(2, 15);
 let milliseconds = 0;
 let start;
 let interval;
@@ -97,6 +101,7 @@ const onMouseOver = (obj) => {
         if (window.ACOS) {
           ACOS.sendEvent("log", {
             id: id,
+            userid: userId,
             content:
               data[2].annotations[
                 obj.target.id.substring(obj.target.id.length - 1) - 1
@@ -135,6 +140,7 @@ const onMouseLeave = (obj) => {
   if (window.ACOS) {
     ACOS.sendEvent("log", {
       id: id,
+      userid: userId,
       content:
         data[2].annotations[
           obj.target.id.substring(obj.target.id.length - 1) - 1
