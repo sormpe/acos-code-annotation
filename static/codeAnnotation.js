@@ -71,6 +71,7 @@ const onMouseOver = (obj) => {
           data[1].content.substring(idx, idxEnd)
         )[0];
         span1.textContent = before;
+        span1.setAttribute("style", "white-space: pre-wrap;");
 
         const string = data[1].content.substring(idx, idxEnd);
         const span2 = document.createElement("span");
@@ -81,6 +82,8 @@ const onMouseOver = (obj) => {
           data[1].content.substring(idx, idxEnd)
         )[1];
         span3.textContent = after;
+        span3.setAttribute("style", "white-space: pre-wrap;");
+
         element.children[0].appendChild(span1);
         element.children[0].appendChild(span2);
         span2.id = "search-term";
