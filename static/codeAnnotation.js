@@ -70,9 +70,7 @@ const onMouseOver = (obj) => {
         }
 
         const span1 = document.createElement("span");
-        const before = data[1].content.split(
-          data[1].content.substring(idx, idxEnd)
-        )[0];
+        const before = data[1].content.substring(0, idx);
         span1.textContent = before;
 
         const string = data[1].content.substring(idx, idxEnd);
@@ -80,9 +78,7 @@ const onMouseOver = (obj) => {
         span2.textContent = string;
 
         const span3 = document.createElement("span");
-        const after = data[1].content.split(
-          data[1].content.substring(idx, idxEnd)
-        )[1];
+        const after = data[1].content.substring(idxEnd, data[1].content.length);
         span3.textContent = after;
 
         element.children[0].appendChild(span1);
