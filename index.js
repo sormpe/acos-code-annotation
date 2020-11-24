@@ -3,6 +3,12 @@ var htmlencode = require("htmlencode").htmlEncode;
 
 var CodeAnnotation = function () {};
 
+const getUid = (req) => {
+  return parseInt(
+    (req.body.user_id || req.query.uid || "0").match(/\d+/g).join("")
+  );
+};
+
 CodeAnnotation.addToHead = function (params) {
   return (
     '<link href="/static/codeannotation/style.css" rel="stylesheet">\n' +
@@ -17,16 +23,22 @@ CodeAnnotation.addToBody = function (params) {
 };
 
 CodeAnnotation.initialize = function (req, params, handlers, cb) {
+  // get uid for logging
+  params.u = getUid(req);
+
   // Initialize the content type
   params.headContent += CodeAnnotation.addToHead(params);
   params.bodyContent += CodeAnnotation.addToBody(params);
 
   // Initialize the content package
-  // prettier-ignore
-
-  handlers.contentPackages[req.params.contentPackage].initialize(req, params, handlers, function() {
-    cb();
-  });
+  handlers.contentPackages[req.params.contentPackage].initialize(
+    req,
+    params,
+    handlers,
+    function (config) {
+      cb();
+    }
+  );
 };
 
 // prettier-ignore

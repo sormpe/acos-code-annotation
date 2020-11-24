@@ -93,6 +93,8 @@ const onMouseOver = (obj) => {
         start = Date.now();
 
         interval = setInterval(counter, 1);
+        const uid = element.getAttribute("uid");
+
         if (window.ACOS) {
           ACOS.sendEvent("log", {
             id: id,
@@ -106,6 +108,7 @@ const onMouseOver = (obj) => {
                 obj.target.id.substring(obj.target.id.length - 1) - 1
               ].annotation,
             type: "mouseOver",
+            uid: uid,
           });
         }
       }
@@ -132,6 +135,8 @@ const onMouseLeave = (obj) => {
   const id = element.getAttribute("data-id");
   const data = windowData[id];
 
+  const uid = element.getAttribute("uid");
+
   if (window.ACOS) {
     ACOS.sendEvent("log", {
       id: id,
@@ -146,6 +151,7 @@ const onMouseLeave = (obj) => {
         ].annotation,
       type: "mouseLeave",
       time: milliseconds,
+      uid: uid,
     });
   }
   milliseconds = 0;
