@@ -31,14 +31,10 @@ CodeAnnotation.initialize = function (req, params, handlers, cb) {
   params.bodyContent += CodeAnnotation.addToBody(params);
 
   // Initialize the content package
-  handlers.contentPackages[req.params.contentPackage].initialize(
-    req,
-    params,
-    handlers,
-    function (config) {
-      cb();
-    }
-  );
+  // prettier-ignore
+  handlers.contentPackages[req.params.contentPackage].initialize(req, params, handlers, function() {
+    cb();
+  });
 };
 
 // prettier-ignore
