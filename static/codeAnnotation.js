@@ -50,6 +50,13 @@ const counter = () => {
 };
 
 const onMouseOver = (obj) => {
+  if (obj.target.localName === "div") {
+    obj.target.setAttribute(
+      "style",
+      "border: 3px solid green; border-radius: 5px; margin-top: 0.5em; padding: 0.6em 0.2em 0.6em 1em; background-color: greenyellow;"
+    );
+  }
+
   const windowData = window.codeAnnotation;
   const element = document.getElementById("annotated-content");
   const id = element.getAttribute("data-id");
@@ -128,6 +135,13 @@ function removeChildren(elem) {
 }
 
 const onMouseLeave = (obj) => {
+  if (obj.target.localName === "div") {
+    obj.target.setAttribute(
+      "style",
+      "border: 1px solid darkseagreen; border-radius: 5px; margin-top: 0.5em; padding: 0.6em 0.2em 0.6em 1em; background-color: greenyellow;"
+    );
+  }
+
   clearInterval(interval);
 
   const windowData = window.codeAnnotation;
