@@ -59,6 +59,8 @@ const onMouseOver = (obj) => {
 
   const windowData = window.codeAnnotation;
   const element = document.getElementById("annotated-content");
+  const uid = element.getAttribute("uid");
+
   const id = element.getAttribute("data-id");
   const data = windowData[id];
 
@@ -69,54 +71,177 @@ const onMouseOver = (obj) => {
 
     for (let j = 0; j < data[2].annotations.length; j++) {
       if (obj.target.id.slice(-1) === data[2].annotations[j].index.toString()) {
-        const idx = data[2].annotations[j].locIndex;
-        const idxEnd = idx + data[2].annotations[j].content.length;
-
         for (let item of annotatedContent.children[0].childNodes) {
           item.textContent = "";
         }
 
-        const span1 = document.createElement("span");
-        const before = data[1].content.substring(0, idx);
-        span1.textContent = before;
+        // handle old json (code annottion editor generated different json structure before)
+        if (typeof data[2].annotations[j].content === "string") {
+          const idx = data[2].annotations[j].locIndex;
+          const idxEnd = idx + data[2].annotations[j].content.length;
 
-        const string = data[1].content.substring(idx, idxEnd);
-        const span2 = document.createElement("span");
-        span2.textContent = string;
+          const span1 = document.createElement("span");
+          const before = data[1].content.substring(0, idx);
+          span1.textContent = before;
 
-        const span3 = document.createElement("span");
-        const after = data[1].content.substring(idxEnd, data[1].content.length);
-        span3.textContent = after;
+          const string = data[1].content.substring(idx, idxEnd);
+          const span2 = document.createElement("span");
+          span2.textContent = string;
 
-        element.children[0].appendChild(span1);
-        element.children[0].appendChild(span2);
-        span2.id = "search-term";
-        span2.setAttribute("style", "background-color:crimson");
-        element.setAttribute("style", "white-space: pre-wrap;");
+          const span3 = document.createElement("span");
+          const after = data[1].content.substring(
+            idxEnd,
+            data[1].content.length
+          );
+          span3.textContent = after;
 
-        annotatedContent.children[0].appendChild(span3);
-        Prism.highlightElement(span1);
-        Prism.highlightElement(span3);
-        start = Date.now();
+          element.children[0].appendChild(span1);
+          element.children[0].appendChild(span2);
+          span2.id = "search-term";
+          span2.setAttribute("style", "background-color:crimson");
+          element.setAttribute("style", "white-space: pre-wrap;");
 
-        interval = setInterval(counter, 1);
-        const uid = element.getAttribute("uid");
+          annotatedContent.children[0].appendChild(span3);
+          Prism.highlightElement(span1);
+          Prism.highlightElement(span3);
+          start = Date.now();
 
-        if (window.ACOS) {
-          ACOS.sendEvent("log", {
-            id: id,
-            instanceId: instanceId,
-            content:
-              data[2].annotations[
-                obj.target.id.substring(obj.target.id.length - 1) - 1
-              ].content,
-            annotation:
-              data[2].annotations[
-                obj.target.id.substring(obj.target.id.length - 1) - 1
-              ].annotation,
-            type: "mouseOver",
-            uid: uid,
-          });
+          interval = setInterval(counter, 1);
+          const uid = element.getAttribute("uid");
+
+          if (window.ACOS) {
+            ACOS.sendEvent("log", {
+              id: id,
+              instanceId: instanceId,
+              content:
+                data[2].annotations[
+                  obj.target.id.substring(obj.target.id.length - 1) - 1
+                ].content,
+              annotation:
+                data[2].annotations[
+                  obj.target.id.substring(obj.target.id.length - 1) - 1
+                ].annotation,
+              type: "mouseOver",
+              uid: uid,
+            });
+          }
+        } else {
+          const idxs = data[2].annotations[j].locIndices;
+          const idxsEnd = [];
+          for (const idx of idxs) {
+            idxsEnd.push(
+              idx + data[2].annotations[j].content[idxs.indexOf(idx)].length
+            );
+          }
+
+          const spans = [];
+
+          if (data[2].annotations[j].content.length === 1) {
+            const idx = data[2].annotations[j].locIndices[0];
+            const idxEnd = idx + data[2].annotations[j].content[0].length;
+
+            const span1 = document.createElement("span");
+            const before = data[1].content.substring(0, idx);
+            span1.textContent = before;
+
+            const string = data[1].content.substring(idx, idxEnd);
+            const span2 = document.createElement("span");
+
+            span2.textContent = string;
+
+            const span3 = document.createElement("span");
+            const after = data[1].content.substring(
+              idxEnd,
+              data[1].content.length
+            );
+
+            span3.textContent = after;
+
+            element.children[0].appendChild(span1);
+            element.children[0].appendChild(span2);
+            span2.id = "search-term";
+            span2.setAttribute("style", "background-color:crimson");
+            element.setAttribute("style", "white-space: pre-wrap;");
+
+            annotatedContent.children[0].appendChild(span3);
+            Prism.highlightElement(span1);
+            Prism.highlightElement(span3);
+            start = Date.now();
+
+            interval = setInterval(counter, 1);
+
+            if (window.ACOS) {
+              ACOS.sendEvent("log", {
+                id: id,
+                instanceId: instanceId,
+                content: data[2].annotations[j].content,
+                annotation: data[2].annotations[j].annotation,
+                type: "mouseOver",
+                uid: uid,
+              });
+            }
+          } else {
+            for (let k = 0; k < data[2].annotations.length; k++) {
+              if (k === 0) {
+                spans.push({ normal: data[1].content.substring(0, idxs[0]) });
+
+                spans.push({
+                  highlight: data[1].content.substring(idxs[0], idxsEnd[0]),
+                });
+              } else {
+                if (idxsEnd[k - 1] && idxs[k] && idxsEnd[k]) {
+                  spans.push({
+                    normal: data[1].content.substring(idxsEnd[k - 1], idxs[k]),
+                  });
+                  spans.push({
+                    highlight: data[1].content.substring(idxs[k], idxsEnd[k]),
+                  });
+                }
+              }
+
+              // last element
+              if (k === idxs.length - 1) {
+                spans.push({
+                  normal: data[1].content.substring(
+                    idxsEnd[k],
+                    data[1].content.length
+                  ),
+                });
+              }
+            }
+
+            for (let span of spans) {
+              if (span.normal) {
+                let spanElement = document.createElement("span");
+                spanElement.textContent = span.normal;
+
+                annotatedContent.children[0].appendChild(spanElement);
+              } else {
+                let spanElement = document.createElement("span");
+                spanElement.textContent = span.highlight;
+                spanElement.id = "search-term";
+                spanElement.setAttribute("style", "background-color:crimson");
+                annotatedContent.children[0].appendChild(spanElement);
+              }
+            }
+            element.setAttribute("style", "white-space: pre-wrap;");
+            if (window.ACOS) {
+              ACOS.sendEvent("log", {
+                id: id,
+                instanceId: instanceId,
+                content:
+                  data[2].annotations[
+                    obj.target.id.substring(obj.target.id.length - 1) - 1
+                  ].content,
+                annotation:
+                  data[2].annotations[
+                    obj.target.id.substring(obj.target.id.length - 1) - 1
+                  ].annotation,
+                type: "mouseOver",
+                uid: uid,
+              });
+            }
+          }
         }
       }
     }
@@ -146,10 +271,10 @@ const onMouseLeave = (obj) => {
 
   const windowData = window.codeAnnotation;
   const element = document.getElementById("annotated-content");
+  const uid = element.getAttribute("uid");
+
   const id = element.getAttribute("data-id");
   const data = windowData[id];
-
-  const uid = element.getAttribute("uid");
 
   if (window.ACOS) {
     ACOS.sendEvent("log", {
