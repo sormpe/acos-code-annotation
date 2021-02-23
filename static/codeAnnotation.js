@@ -3,6 +3,11 @@ document.addEventListener("DOMContentLoaded", function (event) {
   const element = document.getElementById("annotated-content");
   const id = element.getAttribute("data-id");
 
+  const body = document.getElementsByTagName("body")[0];
+  body.classList.add("iframe-exact-height");
+
+  window.parent.postMessage({ type: "acos-resizeiframe-init" }, "*");
+
   if (windowData[id]) {
     const data = windowData[id];
     const pre = document.createElement("pre");
@@ -36,6 +41,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
       div.onmouseleave = onMouseLeave;
     }
   }
+
+  // prevents flickering when we hover an annotation and border width changes
+  const annotationsDiv = document.getElementById("annotations");
+  annotationsDiv.setAttribute(
+    "style",
+    `height: ${annotationsDiv.offsetHeight.toString() + "px"}`
+  );
 });
 
 // variables for logging
@@ -50,6 +62,8 @@ const counter = () => {
 };
 
 const onMouseOver = (obj) => {
+  window.parent.postMessage({ type: "acos-resizeiframe-init" }, "*");
+
   if (obj.target.localName === "div") {
     obj.target.setAttribute(
       "style",
@@ -57,8 +71,8 @@ const onMouseOver = (obj) => {
     );
   }
 
-  const windowData = window.codeAnnotation;
   const element = document.getElementById("annotated-content");
+  const windowData = window.codeAnnotation;
   const uid = element.getAttribute("uid");
 
   const id = element.getAttribute("data-id");
@@ -75,7 +89,7 @@ const onMouseOver = (obj) => {
           item.textContent = "";
         }
 
-        // handle old json (code annottion editor generated different json structure before)
+        // handle old json (the code annotation editor generated different json structure before)
         if (typeof data[2].annotations[j].content === "string") {
           const idx = data[2].annotations[j].locIndex;
           const idxEnd = idx + data[2].annotations[j].content.length;
@@ -104,6 +118,7 @@ const onMouseOver = (obj) => {
           annotatedContent.children[0].appendChild(span3);
           Prism.highlightElement(span1);
           Prism.highlightElement(span3);
+
           start = Date.now();
 
           interval = setInterval(counter, 1);
@@ -160,6 +175,7 @@ const onMouseOver = (obj) => {
             element.children[0].appendChild(span1);
             element.children[0].appendChild(span2);
             span2.id = "search-term";
+
             span2.setAttribute("style", "background-color:crimson");
             element.setAttribute("style", "white-space: pre-wrap;");
 
@@ -260,6 +276,8 @@ function removeChildren(elem) {
 }
 
 const onMouseLeave = (obj) => {
+  window.parent.postMessage({ type: "acos-resizeiframe-init" }, "*");
+
   if (obj.target.localName === "div") {
     obj.target.setAttribute(
       "style",
